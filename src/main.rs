@@ -10,7 +10,7 @@ use transaction::Transaction;
 fn main() {
     let tx = Transaction::new_coinbse_tx("abxgtsunkodojahucd");
     let genesis_pre_hash = String::from("0x0");
-    let bk = Block::new(genesis_pre_hash, vec![tx]);
+    let bk = Block::new(genesis_pre_hash, vec![tx], 0);
     bk.print();
 }
 

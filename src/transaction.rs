@@ -82,6 +82,10 @@ impl Transaction {
         bincode::serialize(&self).unwrap()
     }
 
+    pub fn get_id(&self) -> Vec<u8> {
+        self.id.clone()
+    }
+
     pub fn print(&self) {
         println!("tx.id: {:?}", hex_encode(&self.id));
         println!("tx.vin: [");
