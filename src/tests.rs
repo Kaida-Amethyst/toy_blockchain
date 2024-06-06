@@ -39,4 +39,5 @@ mod tests {
         let tip_block = Block::deserialize(&tip_block_data.unwrap());
         tip_block.print();
     }
+    // TODO: test blockchain iterator
 }

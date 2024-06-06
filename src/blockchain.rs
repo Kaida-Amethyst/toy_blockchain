@@ -61,3 +61,5 @@ impl BlockChain {
         &self.db
     }
 }
+
+// TODO: blockchain iterator
