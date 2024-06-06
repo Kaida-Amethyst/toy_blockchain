@@ -11,9 +11,18 @@ mod tests {
     }
 
     #[test]
-    fn print_block() {
+    fn print_block1() {
         let tx = Transaction::new_coinbase_tx("abxgtsunkodojahucd");
         let genesis_pre_hash = String::from("0x0");
+        let bk = Block::new(genesis_pre_hash, vec![tx], 0);
+        bk.print();
+    }
+
+    // TODO:: need to fix this test
+    #[test]
+    fn print_block2() {
+        let tx = Transaction::new_coinbase_tx("Hello blockchain");
+        let genesis_pre_hash = String::from("0x12324567");
         let bk = Block::new(genesis_pre_hash, vec![tx], 0);
         bk.print();
     }
