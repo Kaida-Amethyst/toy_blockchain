@@ -10,6 +10,10 @@ const DB_NAME: &str = "blockchain_data";
 const BLOCKS_TREE_NAME: &str = "blockchain";
 const TIP_BLOCK_HASH_KEY: &str = "tip_block_hash";
 
+/// In BlockChain struct, we record two fileds:
+///   1. tip_hash: the hash of the last block
+///   2. db: sled::Db, the database to store the blockchain data
+/// Once we want to iterator the blockchain, we chould search the block data from the db by the hash
 pub struct BlockChain {
     tip_hash: Arc<RwLock<String>>, // the hash of the last block
     db: Db,
