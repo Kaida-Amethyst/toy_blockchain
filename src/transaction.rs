@@ -1,16 +1,31 @@
-// Implement Transaction
-// UTXO Model
+/* # Transaction Module
+ *
+ * ## UXTO Model anc account model
+ *
+ *  In this project, we use UTXO Model
+ *  What is UTXO?
+ *  In real world, we are familiar with account model, which is like a bank account
+ *  Suppose there is three persons, Alice Bob, and Charlie, they both have an account in the bank
+ *  Now Alice want to transfer 10 coins to Bob and 5 coins to Charlie
+ *  In Block chain, the speed of block generation is not that fast
+ *  If the blockchain use account model, after ALice transfer 10 coins to Bob, the transaction is not confirmed
+ *  She has to wait for the next block to be generated, which may cost 10 minutes, enen longer
+ *  But in UTXO model, Alice may have many UTXOs, each UTXO conatins some coins
+ *  So if she want to transfer 10 coins to Bob and 5 coins to Charlie, she can use two UTXOs at the same time
+ *  That is why you can see the Transaction struct has two fields: vin and vout, which are vectors, not just an addrss
+ */
 use crate::utils::hex_encode;
 use crate::utils::sha256_digest;
 use serde::{Deserialize, Serialize};
 
-// UTXO input
-// fields:
-//   - txid: Previous transaction ID, Notice that this is Vec<u8> instead of String
-//           Because in rust, char is 4 bytes rather than 1 byte like C
-//   - vout: Previous transaction output index
-//   - signature: Signature of the transaction
-//   - pub_key: Public key of the transaction
+/// UTXO input
+/// fields:
+///   - txid: Previous transaction ID, Notice that this is `Vec<u8>` instead of String
+///           Because in rust, char is 4 bytes rather than 1 byte like C
+///   - vout: Previous transaction output index
+///   - signature: Signature of the transaction
+///   - pub_key: Public key of the transaction
+///
 #[derive(Default, Clone, Serialize, Deserialize, Debug)]
 struct TXInput {
     txid: Vec<u8>,
@@ -19,19 +34,21 @@ struct TXInput {
     pub_key: Vec<u8>,
 }
 
-// fields:
-//   - value: number of coins
-//   - pub_key_hash: Public key hash
+/// UTXO output
+/// fields:
+///   - value: number of coins
+///   - pub_key_hash: Public key hash
 #[derive(Clone, Serialize, Deserialize, Debug)]
 struct TXOutput {
     value: i32,
     pub_key_hash: Vec<u8>,
 }
 
-// fields:
-//   - id: Transaction ID
-//   - vin: Vector of UTXO input
-//   - vout: Vector of UTXO output
+/// Transaction Struct
+/// fields:
+///   - id: Transaction ID
+///   - vin: Vector of UTXO input
+///   - vout: Vector of UTXO output
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Transaction {
     id: Vec<u8>,
@@ -40,6 +57,8 @@ pub struct Transaction {
 }
 
 impl TXOutput {
+    /// Note: the parameter is `address`
+    /// The `new` function will extract the public key hash from the address
     pub fn new(value: i32, address: &str) -> TXOutput {
         let mut output = TXOutput {
             value,
@@ -59,9 +78,9 @@ impl TXOutput {
 }
 
 impl Transaction {
-    // Used when miner mined a new block, the root would reward the miner
-    // Since it has no input, so there is only one parameter, `to`
-    pub fn new_coinbse_tx(to: &str) -> Transaction {
+    /// function `new_coinbase_tx` is used when miner mined a new block, the root would reward the miner
+    /// Since it has no input, so there is only one parameter, `to`
+    pub fn new_coinbase_tx(to: &str) -> Transaction {
         let txout = TXOutput::new(10, to); // TODO: replace 10 with a variable
         let tx_input = TXInput::default(); // use default, because there is no input
         let mut tx = Transaction {
