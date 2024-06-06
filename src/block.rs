@@ -2,6 +2,7 @@ use crate::transaction::Transaction;
 use crate::{utils::hex_encode, utils::sha256_digest};
 use num_bigint::BigInt;
 use serde::{Deserialize, Serialize};
+use sled::IVec;
 
 const DIFFICULTY: usize = 2;
 
@@ -42,12 +43,20 @@ impl Block {
         block
     }
 
+    pub fn generate_genesis_block(coinbase_tx: Transaction) -> Block {
+        Block::new(String::from("None"), vec![coinbase_tx], 0)
+    }
+
     pub fn get_timestamp(&self) -> u64 {
         self.timestamp
     }
 
     pub fn get_pre_block_hash(&self) -> String {
         self.pre_block_hash.clone()
+    }
+
+    pub fn get_hash(&self) -> &str {
+        self.hash.as_str()
     }
 
     pub fn hash_transactions(&self) -> Vec<u8> {
@@ -67,6 +76,13 @@ impl Block {
         for tx in &self.transactions {
             tx.print();
         }
+    }
+}
+
+impl From<Block> for IVec {
+    fn from(block: Block) -> IVec {
+        let bytes = bincode::serialize(&block).unwrap();
+        Self::from(bytes)
     }
 }
 
