@@ -59,6 +59,22 @@ impl Block {
         self.hash.as_str()
     }
 
+    pub fn serialize(&self) -> Vec<u8> {
+        if let Ok(serialized) = bincode::serialize(&self) {
+            serialized.to_vec()
+        } else {
+            panic!("Failed to serialize block");
+        }
+    }
+
+    pub fn deserialize(data: &[u8]) -> Block {
+        if let Ok(deserialized) = bincode::deserialize(data) {
+            deserialized
+        } else {
+            panic!("Failed to deserialize block");
+        }
+    }
+
     pub fn hash_transactions(&self) -> Vec<u8> {
         let mut tx_hashes = Vec::new();
         for tx in &self.transactions {
@@ -81,7 +97,7 @@ impl Block {
 
 impl From<Block> for IVec {
     fn from(block: Block) -> IVec {
-        let bytes = bincode::serialize(&block).unwrap();
+        let bytes = block.serialize();
         Self::from(bytes)
     }
 }

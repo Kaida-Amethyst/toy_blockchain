@@ -53,4 +53,8 @@ impl BlockChain {
     pub fn get_tip_hash(&self) -> String {
         self.tip_hash.read().unwrap().clone()
     }
+
+    pub fn get_db(&self) -> &Db {
+        &self.db
+    }
 }
