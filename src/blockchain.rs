@@ -6,9 +6,9 @@ use sled::{Db, Tree};
 use std::env::current_dir;
 use std::sync::{Arc, RwLock};
 
-const DB_NAME: &str = "blockchain_data";
-const BLOCKS_TREE_NAME: &str = "blockchain";
-const TIP_BLOCK_HASH_KEY: &str = "tip_block_hash";
+pub const DB_NAME: &str = "blockchain_data";
+pub const BLOCKS_TREE_NAME: &str = "blockchain";
+pub const TIP_BLOCK_HASH_KEY: &str = "tip_block_hash";
 
 /// In BlockChain struct, we record two fileds:
 ///   1. tip_hash: the hash of the last block
@@ -20,13 +20,16 @@ pub struct BlockChain {
 }
 
 impl BlockChain {
-    /// Usually it is used when the whole blockchain created for the first time
+    /// If we already have DB on current_dir, we will open it and get the tip block hash.
+    /// If not, create a new DB and generate a genesis block.
     pub fn create_blockchain(genesis_address: &str) -> BlockChain {
         let db = sled::open(current_dir().unwrap().join(DB_NAME)).unwrap();
         let blocks_tree = db.open_tree(BLOCKS_TREE_NAME).unwrap();
         let block_data = blocks_tree.get(TIP_BLOCK_HASH_KEY).unwrap();
 
         let tip_hash = if block_data.is_none() {
+            println!("Database not found, Create a new blockchain");
+            println!("using address: {} as the genesis address", genesis_address);
             let coinbase_tx = Transaction::new_coinbase_tx(genesis_address);
             let genesis_block = Block::generate_genesis_block(coinbase_tx);
             Self::update_blocks_tree(&blocks_tree, &genesis_block);
