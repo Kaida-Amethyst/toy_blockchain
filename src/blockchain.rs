@@ -44,6 +44,10 @@ impl BlockChain {
         }
     }
 
+    pub fn iterator(&self) -> BlockchainIterator {
+        BlockchainIterator::new(self.get_tip_hash(), self.db.clone())
+    }
+
     fn update_blocks_tree(blocks_tree: &Tree, block: &Block) {
         let block_hash = block.get_hash();
         let _: TransactionResult<(), ()> = blocks_tree.transaction(|tx| {
@@ -82,5 +86,31 @@ impl BlockChain {
         Self::update_blocks_tree(&blocks_tree, &block);
         self.set_tip_hash(block_hash);
         block
+    }
+}
+
+// BlockChainIterator
+pub struct BlockchainIterator {
+    db: Db,
+    current_hash: String,
+}
+
+impl BlockchainIterator {
+    pub fn new(tip_hash: String, db: Db) -> BlockchainIterator {
+        BlockchainIterator {
+            db,
+            current_hash: tip_hash,
+        }
+    }
+
+    pub fn next(&mut self) -> Option<Block> {
+        let blocks_tree = self.db.open_tree(BLOCKS_TREE_NAME).unwrap();
+        let current_block_data = blocks_tree.get(&self.current_hash).unwrap();
+        if current_block_data.is_none() {
+            return None;
+        }
+        let current_block: Block = Block::deserialize(&current_block_data.unwrap());
+        self.current_hash = current_block.get_pre_block_hash();
+        return Some(current_block);
     }
 }
