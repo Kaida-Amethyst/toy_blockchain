@@ -1,6 +1,6 @@
 use crate::block::Block;
 use crate::transaction::Transaction;
-use sled::transaction::{self, TransactionResult};
+use sled::transaction::TransactionResult;
 /// BlockChain
 use sled::{Db, Tree};
 use std::env::current_dir;
