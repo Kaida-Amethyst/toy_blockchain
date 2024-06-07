@@ -24,12 +24,12 @@ pub struct Block {
 }
 
 impl Block {
-    pub fn new(pre_block_hash: String, transactions: Vec<Transaction>, height: usize) -> Block {
+    pub fn new(pre_block_hash: String, transactions: &[Transaction], height: usize) -> Block {
         let mut block = Block {
             timestamp: 0,
             pre_block_hash,
             hash: String::new(),
-            transactions,
+            transactions: transactions.to_vec(),
             nonce: 0,
             height,
         };
@@ -44,7 +44,8 @@ impl Block {
     }
 
     pub fn generate_genesis_block(coinbase_tx: Transaction) -> Block {
-        Block::new(String::from("None"), vec![coinbase_tx], 0)
+        let transactions = vec![coinbase_tx.clone()];
+        Block::new(String::from("None"), &transactions, 0)
     }
 
     pub fn get_timestamp(&self) -> u64 {
@@ -57,6 +58,10 @@ impl Block {
 
     pub fn get_hash(&self) -> &str {
         self.hash.as_str()
+    }
+
+    pub fn get_height(&self) -> usize {
+        self.height
     }
 
     pub fn serialize(&self) -> Vec<u8> {

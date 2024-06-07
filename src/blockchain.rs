@@ -1,6 +1,6 @@
 use crate::block::Block;
 use crate::transaction::Transaction;
-use sled::transaction::TransactionResult;
+use sled::transaction::{self, TransactionResult};
 /// BlockChain
 use sled::{Db, Tree};
 use std::env::current_dir;
@@ -57,9 +57,30 @@ impl BlockChain {
         self.tip_hash.read().unwrap().clone()
     }
 
+    pub fn set_tip_hash(&self, new_tip_hash: &str) {
+        let mut tip_hash = self.tip_hash.write().unwrap();
+        *tip_hash = String::from(new_tip_hash);
+    }
+
     pub fn get_db(&self) -> &Db {
         &self.db
     }
-}
 
-// TODO: blockchain iterator
+    pub fn get_best_height(&self) -> usize {
+        // Read the tip block from the db
+        let blocks_tree = self.db.open_tree(BLOCKS_TREE_NAME).unwrap();
+        let tip_block_data = blocks_tree.get(self.get_tip_hash()).unwrap();
+        let tip_block: Block = Block::deserialize(&tip_block_data.unwrap());
+        tip_block.get_height()
+    }
+
+    pub fn mine_block(&self, transactions: &[Transaction]) -> Block {
+        let best_height = self.get_best_height();
+        let block: Block = Block::new(self.get_tip_hash(), transactions, best_height + 1);
+        let block_hash = block.get_hash();
+        let blocks_tree = self.db.open_tree(BLOCKS_TREE_NAME).unwrap();
+        Self::update_blocks_tree(&blocks_tree, &block);
+        self.set_tip_hash(block_hash);
+        block
+    }
+}
