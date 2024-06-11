@@ -10,5 +10,6 @@ bs58 = "0.4.0"    # encode, decode
 ring = "0.16.20"  # sha256
 bincode = "1.3.3" # serialize, deserialize
 num-bigint = "0.4.0" # bigint, It supports big integers
+data-encoding = "2.3.0" # HEXLOWER
 sled = "0.34.0"  # key-value store
 serde = { version = "1.0.132", features = ["derive"] }

@@ -27,9 +27,9 @@ use serde::{Deserialize, Serialize};
 ///   - pub_key: Public key of the transaction
 ///
 #[derive(Default, Clone, Serialize, Deserialize, Debug)]
-struct TXInput {
+pub struct TXInput {
     txid: Vec<u8>,
-    vout: i32,
+    vout: usize,
     signature: Vec<u8>,
     pub_key: Vec<u8>,
 }
@@ -39,7 +39,7 @@ struct TXInput {
 ///   - value: number of coins
 ///   - pub_key_hash: Public key hash
 #[derive(Clone, Serialize, Deserialize, Debug)]
-struct TXOutput {
+pub struct TXOutput {
     value: i32,
     pub_key_hash: Vec<u8>,
 }
@@ -54,6 +54,16 @@ pub struct Transaction {
     id: Vec<u8>,
     vin: Vec<TXInput>,
     vout: Vec<TXOutput>,
+}
+
+impl TXInput {
+    pub fn get_txid(&self) -> &[u8] {
+        self.txid.as_slice()
+    }
+
+    pub fn get_vout(&self) -> usize {
+        self.vout
+    }
 }
 
 impl TXOutput {
@@ -75,6 +85,10 @@ impl TXOutput {
         let pub_key_hash = &decode[1..decode.len() - 4];
         self.pub_key_hash = pub_key_hash.to_vec();
     }
+
+    pub fn is_locked_with_key(&self, pub_key_hash: &[u8]) -> bool {
+        self.pub_key_hash.eq(pub_key_hash)
+    }
 }
 
 impl Transaction {
@@ -92,6 +106,10 @@ impl Transaction {
         tx
     }
 
+    pub fn is_coinbase(&self) -> bool {
+        self.vin.len() == 1 && self.vin[0].pub_key.len() == 0
+    }
+
     fn hash(&self) -> Vec<u8> {
         let tx_clone = self.clone();
         sha256_digest(&tx_clone.serialize().as_slice())
@@ -101,8 +119,16 @@ impl Transaction {
         bincode::serialize(&self).unwrap()
     }
 
-    pub fn get_id(&self) -> Vec<u8> {
-        self.id.clone()
+    pub fn get_id(&self) -> &[u8] {
+        self.id.as_slice()
+    }
+
+    pub fn get_vout(&self) -> &[TXOutput] {
+        &self.vout
+    }
+
+    pub fn get_vin(&self) -> &[TXInput] {
+        &self.vin
     }
 
     pub fn print(&self) {

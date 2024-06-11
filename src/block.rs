@@ -64,6 +64,10 @@ impl Block {
         self.height
     }
 
+    pub fn get_transactions(&self) -> &[Transaction] {
+        &self.transactions
+    }
+
     pub fn serialize(&self) -> Vec<u8> {
         if let Ok(serialized) = bincode::serialize(&self) {
             serialized.to_vec()
