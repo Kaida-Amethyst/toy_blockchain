@@ -90,6 +90,9 @@ impl BlockChain {
         block
     }
 
+    /// Return a hashmap
+    /// The key is the txid_hex
+    /// The value is a vector of TXOutput
     pub fn find_utxo(&self) -> HashMap<String, Vec<TXOutput>> {
         let mut utxo: HashMap<String, Vec<TXOutput>> = HashMap::new();
         let mut spent_txos: HashMap<String, Vec<usize>> = HashMap::new();

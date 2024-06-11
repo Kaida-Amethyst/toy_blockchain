@@ -1,3 +1,5 @@
+use core::fmt;
+
 /* # Transaction Module
  *
  * ## UXTO Model anc account model
@@ -26,7 +28,7 @@ use serde::{Deserialize, Serialize};
 ///   - signature: Signature of the transaction
 ///   - pub_key: Public key of the transaction
 ///
-#[derive(Default, Clone, Serialize, Deserialize, Debug)]
+#[derive(Default, Clone, Serialize, Deserialize)]
 pub struct TXInput {
     txid: Vec<u8>,
     vout: usize,
@@ -34,14 +36,38 @@ pub struct TXInput {
     pub_key: Vec<u8>,
 }
 
+impl fmt::Debug for TXInput {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "TXInput {{ txid: {:?}, vout: {:?}, signature: {:?}, pub_key: {:?} }}",
+            hex_encode(&self.txid),
+            self.vout,
+            hex_encode(&self.signature),
+            hex_encode(&self.pub_key)
+        )
+    }
+}
+
 /// UTXO output
 /// fields:
 ///   - value: number of coins
 ///   - pub_key_hash: Public key hash
-#[derive(Clone, Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct TXOutput {
     value: i32,
     pub_key_hash: Vec<u8>,
+}
+
+impl fmt::Debug for TXOutput {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "TXOutput {{ value: {:?}, pub_key_hash: {:?} }}",
+            self.value,
+            hex_encode(&self.pub_key_hash)
+        )
+    }
 }
 
 /// Transaction Struct

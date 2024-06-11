@@ -65,4 +65,19 @@ mod tests {
             Block::deserialize(&blocks_tree.get(tip_blocks_hash).unwrap().unwrap());
         tip_block.print();
     }
+
+    #[test]
+    fn view_all_block() {
+        let blockchain = BlockChain::create_blockchain("abxgtsunkodojahucd");
+        let transaction = Transaction::new_coinbase_tx("abxgtsunkodojahucd");
+        let block = blockchain.mine_block(&[transaction]);
+        // check block and tip block in db
+        println!("mined block: ");
+        block.print();
+        println!("\nVisit all blocks: ");
+        let mut block_iterator = blockchain.iterator();
+        while let Some(block) = block_iterator.next() {
+            block.print();
+        }
+    }
 }

@@ -7,7 +7,9 @@ mod utils;
 
 // use block::Block;
 use blockchain::BlockChain;
-use transaction::Transaction;
+use transaction::{TXOutput, Transaction};
+
+use std::collections::HashMap;
 
 // use crate::{
 //     block::Block,
@@ -17,14 +19,15 @@ use transaction::Transaction;
 fn main() {
     let blockchain = BlockChain::create_blockchain("abxgtsunkodojahucd");
     let transaction = Transaction::new_coinbase_tx("abxgtsunkodojahucd");
-    let block = blockchain.mine_block(&[transaction]);
-    // check block and tip block in db
-    println!("mined block: ");
-    block.print();
-    println!("\nVisit all blocks: ");
-    let mut block_iterator = blockchain.iterator();
-    while let Some(block) = block_iterator.next() {
-        block.print();
+    let _ = blockchain.mine_block(&[transaction]);
+
+    let utxo: HashMap<String, Vec<TXOutput>> = blockchain.find_utxo();
+    for (k, v) in utxo.iter() {
+        println!("==============================");
+        println!("txid: {}", k);
+        for txo in v {
+            println!("  TXOutput: {:?}", txo);
+        }
     }
 }
 
