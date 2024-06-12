@@ -4,6 +4,7 @@ mod block;
 mod blockchain;
 mod transaction;
 mod utils;
+mod utxo_set;
 
 // use block::Block;
 use blockchain::BlockChain;
