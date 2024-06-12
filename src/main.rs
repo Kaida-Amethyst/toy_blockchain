@@ -9,6 +9,8 @@ mod utxo_set;
 // use block::Block;
 use blockchain::BlockChain;
 use transaction::{TXOutput, Transaction};
+use utils::hex_encode;
+use utxo_set::UtxoSet;
 
 use std::collections::HashMap;
 
@@ -19,7 +21,7 @@ use std::collections::HashMap;
 
 fn main() {
     let blockchain = BlockChain::create_blockchain("abxgtsunkodojahucd");
-    let transaction = Transaction::new_coinbase_tx("abxgtsunkodojahucd");
+    let transaction = Transaction::new_coinbase_tx("hegtsodoucahjsubxg");
     let _ = blockchain.mine_block(&[transaction]);
 
     let utxo: HashMap<String, Vec<TXOutput>> = blockchain.find_utxo();
@@ -30,6 +32,15 @@ fn main() {
             println!("  TXOutput: {:?}", txo);
         }
     }
+
+    let utxo_set = UtxoSet::new(blockchain);
+    let addr = "hegtsodoucahjsubxg".as_bytes();
+    let decode = bs58::decode(addr).into_vec().unwrap();
+    let pub_key_hash = &decode[1..decode.len() - 4];
+    let spendable_outputs = utxo_set.find_spendable_outputs(pub_key_hash, 8);
+    let pub_key_hash = pub_key_hash.to_vec();
+    println!("pub_key_hash: {:?}", hex_encode(&pub_key_hash));
+    println!("spendable_outputs: {:?}", spendable_outputs);
 }
 
 mod tests;

@@ -115,6 +115,10 @@ impl TXOutput {
     pub fn is_locked_with_key(&self, pub_key_hash: &[u8]) -> bool {
         self.pub_key_hash.eq(pub_key_hash)
     }
+
+    pub fn get_value(&self) -> i32 {
+        self.value
+    }
 }
 
 impl Transaction {
