@@ -18,6 +18,8 @@ use core::fmt;
  */
 use crate::utils::hex_encode;
 use crate::utils::sha256_digest;
+use crate::utxo_set::UtxoSet;
+use data_encoding::HEXLOWER;
 use serde::{Deserialize, Serialize};
 
 /// UTXO input
@@ -134,6 +136,53 @@ impl Transaction {
         };
         tx.id = tx.hash();
         tx
+    }
+
+    pub fn new_utxo_transactions(
+        from: &str,
+        to: &str,
+        amount: i32,
+        utxo_set: &UtxoSet,
+    ) -> Transaction {
+        // TODO: fix this, when `Wallet` is implemented
+        let from_decode = bs58::decode(from).into_vec().unwrap();
+        let from_pub_key_hash = &from_decode[1..from_decode.len() - 4].to_vec();
+
+        // Find Spendable outputs
+        let (accumulated, spendable_outputs) =
+            utxo_set.find_spendable_outputs(from_pub_key_hash.as_slice(), amount);
+        if accumulated < amount {
+            panic!("ERROR: Not enough funds");
+        }
+
+        let mut inputs = vec![];
+        for (txid, outs) in spendable_outputs {
+            let txid = HEXLOWER.decode(txid.as_bytes()).unwrap();
+            for out in outs {
+                let input = TXInput {
+                    txid: txid.to_vec(),
+                    vout: out,
+                    signature: vec![],
+                    pub_key: from_pub_key_hash.to_vec(),
+                };
+                inputs.push(input);
+            }
+        }
+
+        let mut outputs = vec![TXOutput::new(amount, to)];
+        if (accumulated - amount) > 0 {
+            outputs.push(TXOutput::new(accumulated - amount, from));
+        }
+
+        let mut tx = Transaction {
+            id: vec![],
+            vin: inputs,
+            vout: outputs,
+        };
+
+        tx.id = tx.hash();
+        // TODO: fix this, need `sign` when Wallet is implemented
+        return tx;
     }
 
     pub fn is_coinbase(&self) -> bool {

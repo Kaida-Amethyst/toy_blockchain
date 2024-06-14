@@ -6,12 +6,12 @@ use crate::transaction::TXOutput;
 
 pub const UTXO_TREE: &str = "chainstate";
 
-pub struct UtxoSet {
-    blockchain: BlockChain,
+pub struct UtxoSet<'a> {
+    blockchain: &'a BlockChain,
 }
 
-impl UtxoSet {
-    pub fn new(blockchain: BlockChain) -> UtxoSet {
+impl<'a> UtxoSet<'a> {
+    pub fn new(blockchain: &'a BlockChain) -> UtxoSet {
         UtxoSet { blockchain }
     }
 

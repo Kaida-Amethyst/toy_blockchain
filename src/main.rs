@@ -33,9 +33,20 @@ fn main() {
         }
     }
 
+    let utxo_set = UtxoSet::new(&blockchain);
+    utxo_set.reindex();
+
+    println!("\n==========utxo transaction=================\n");
+    let transaction = Transaction::new_utxo_transactions(
+        "hegtsodoucahjsubxg",
+        "abxgtsunkodojahucd",
+        8,
+        &utxo_set,
+    );
+    transaction.print();
+    let _ = blockchain.mine_block(&[transaction]);
     println!("\n=====Find Spendable=========================\n");
 
-    let utxo_set = UtxoSet::new(blockchain);
     utxo_set.reindex();
     let addr = "hegtsodoucahjsubxg".as_bytes();
     let decode = bs58::decode(addr).into_vec().unwrap();

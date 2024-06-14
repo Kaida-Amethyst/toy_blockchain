@@ -126,7 +126,7 @@ mod tests {
 
         println!("\n=====Find Spendable=========================\n");
 
-        let utxo_set = UtxoSet::new(blockchain);
+        let utxo_set = UtxoSet::new(&blockchain);
         utxo_set.reindex();
         let addr = "hegtsodoucahjsubxg".as_bytes();
         let decode = bs58::decode(addr).into_vec().unwrap();
