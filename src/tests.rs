@@ -2,7 +2,10 @@
 mod tests {
     use crate::block::Block;
     use crate::blockchain::{BlockChain, BLOCKS_TREE_NAME, TIP_BLOCK_HASH_KEY};
-    use crate::transaction::Transaction;
+    use crate::transaction::{TXOutput, Transaction};
+    use crate::utils::hex_encode;
+    use crate::utxo_set::UtxoSet;
+    use std::collections::HashMap;
     use std::sync::Mutex;
 
     static TEST_MUTX: Mutex<()> = Mutex::new(());
@@ -79,5 +82,33 @@ mod tests {
         while let Some(block) = block_iterator.next() {
             block.print();
         }
+    }
+
+    #[test]
+    fn test_find_spendable() {
+        let blockchain = BlockChain::create_blockchain("abxgtsunkodojahucd");
+        let transaction = Transaction::new_coinbase_tx("hegtsodoucahjsubxg");
+        let _ = blockchain.mine_block(&[transaction]);
+
+        let utxo: HashMap<String, Vec<TXOutput>> = blockchain.find_utxo();
+        for (k, v) in utxo.iter() {
+            println!("==============================");
+            println!("txid: {}", k);
+            for txo in v {
+                println!("  TXOutput: {:?}", txo);
+            }
+        }
+
+        println!("\n=====Find Spendable=========================\n");
+
+        let utxo_set = UtxoSet::new(blockchain);
+        utxo_set.reindex();
+        let addr = "hegtsodoucahjsubxg".as_bytes();
+        let decode = bs58::decode(addr).into_vec().unwrap();
+        let pub_key_hash = &decode[1..decode.len() - 4];
+        let spendable_outputs = utxo_set.find_spendable_outputs(pub_key_hash, 8);
+        let pub_key_hash = pub_key_hash.to_vec();
+        println!("pub_key_hash: {:?}", hex_encode(&pub_key_hash));
+        println!("spendable_outputs: {:?}", spendable_outputs);
     }
 }
