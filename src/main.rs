@@ -33,7 +33,10 @@ fn main() {
         }
     }
 
+    println!("\n=====Find Spendable=========================\n");
+
     let utxo_set = UtxoSet::new(blockchain);
+    utxo_set.reindex();
     let addr = "hegtsodoucahjsubxg".as_bytes();
     let decode = bs58::decode(addr).into_vec().unwrap();
     let pub_key_hash = &decode[1..decode.len() - 4];
