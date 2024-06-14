@@ -75,7 +75,7 @@ impl fmt::Debug for TXOutput {
 ///   - id: Transaction ID
 ///   - vin: Vector of UTXO input
 ///   - vout: Vector of UTXO output
-#[derive(Clone, Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Transaction {
     id: Vec<u8>,
     vin: Vec<TXInput>,
@@ -182,5 +182,33 @@ impl Transaction {
             println!("  }}");
         }
         println!("]");
+    }
+}
+
+impl fmt::Debug for Transaction {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "tx.id: {:?}", hex_encode(&self.id))?;
+
+        f.write_str("tx.vin: [\n")?;
+        for item in &self.vin {
+            f.write_str("  {\n")?;
+            write!(f, "    txid: {:?}", hex_encode(&item.txid))?;
+            write!(f, "    vout: {:?}", item.vout)?;
+            write!(f, "    signature: {:?}", hex_encode(&item.signature))?;
+            write!(f, "    pub_key: {:?}", hex_encode(&item.pub_key))?;
+            f.write_str("  }\n")?;
+        }
+        f.write_str("]\n")?;
+
+        f.write_str("tx.vout: [\n")?;
+        for item in &self.vout {
+            f.write_str("  {\n")?;
+            write!(f, "    value: {:?}", item.value)?;
+            write!(f, "    pub_key_hash: {:?}", hex_encode(&item.pub_key_hash))?;
+            f.write_str("  }\n")?;
+        }
+        f.write_str("]\n")?;
+
+        Ok(())
     }
 }
