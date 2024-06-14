@@ -6,9 +6,20 @@ mod tests {
     use crate::utils::hex_encode;
     use crate::utxo_set::UtxoSet;
     use std::collections::HashMap;
+    use std::fs;
+    use std::path::Path;
     use std::sync::Mutex;
 
     static TEST_MUTX: Mutex<()> = Mutex::new(());
+
+    // rm -rf blockchain_data
+    fn clean_db() {
+        let _guard = TEST_MUTX.lock().unwrap();
+        let db_path = Path::new("blockchain_data");
+        if db_path.exists() {
+            fs::remove_dir_all(db_path).unwrap();
+        }
+    }
 
     #[test]
     fn print_transactions() {
@@ -47,6 +58,10 @@ mod tests {
         let tip_block_data = blocks_tree.get(tip_block_hash).unwrap();
         let tip_block = Block::deserialize(&tip_block_data.unwrap());
         tip_block.print();
+
+        // unlock guard
+        drop(_guard);
+        clean_db();
     }
 
     #[test]
@@ -67,10 +82,15 @@ mod tests {
         let tip_block: Block =
             Block::deserialize(&blocks_tree.get(tip_blocks_hash).unwrap().unwrap());
         tip_block.print();
+
+        // unlock guard
+        drop(_guard);
+        clean_db();
     }
 
     #[test]
     fn view_all_block() {
+        let _guard = TEST_MUTX.lock().unwrap();
         let blockchain = BlockChain::create_blockchain("abxgtsunkodojahucd");
         let transaction = Transaction::new_coinbase_tx("abxgtsunkodojahucd");
         let block = blockchain.mine_block(&[transaction]);
@@ -82,10 +102,15 @@ mod tests {
         while let Some(block) = block_iterator.next() {
             block.print();
         }
+
+        // unlock guard
+        drop(_guard);
+        clean_db();
     }
 
     #[test]
     fn test_find_spendable() {
+        let _guard = TEST_MUTX.lock().unwrap();
         let blockchain = BlockChain::create_blockchain("abxgtsunkodojahucd");
         let transaction = Transaction::new_coinbase_tx("hegtsodoucahjsubxg");
         let _ = blockchain.mine_block(&[transaction]);
@@ -110,5 +135,9 @@ mod tests {
         let pub_key_hash = pub_key_hash.to_vec();
         println!("pub_key_hash: {:?}", hex_encode(&pub_key_hash));
         println!("spendable_outputs: {:?}", spendable_outputs);
+
+        // unlock guard
+        drop(_guard);
+        clean_db();
     }
 }
