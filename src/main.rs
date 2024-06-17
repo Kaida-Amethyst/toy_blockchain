@@ -5,6 +5,7 @@ mod blockchain;
 mod transaction;
 mod utils;
 mod utxo_set;
+mod wallet;
 
 // use block::Block;
 use blockchain::BlockChain;
