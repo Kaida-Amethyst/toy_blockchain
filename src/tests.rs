@@ -5,6 +5,8 @@ mod tests {
     use crate::transaction::{TXOutput, Transaction};
     use crate::utils::hex_encode;
     use crate::utxo_set::UtxoSet;
+    use crate::wallet::hash_pub_key;
+    use crate::wallet::Wallet;
     use std::collections::HashMap;
     use std::fs;
     use std::path::Path;
@@ -175,5 +177,37 @@ mod tests {
         // unlock guard
         drop(_guard);
         clean_db();
+    }
+
+    #[test]
+    fn test_pub_key_hash() {
+        let w1 = Wallet::new();
+        let w2 = Wallet::new();
+
+        let addr1 = w1.get_address();
+        let addr2 = w2.get_address();
+
+        let pub_key1 = w1.get_public_key();
+        let pub_key2 = w2.get_public_key();
+
+        let pub_key_hash1 = hash_pub_key(&pub_key1);
+        let pub_key_hash2 = hash_pub_key(&pub_key2);
+
+        let pub_key_hash_from_addr1 = bs58::decode(&addr1).into_vec().unwrap();
+        let pub_key_hash_from_addr1 =
+            &pub_key_hash_from_addr1[1..pub_key_hash_from_addr1.len() - 4].to_vec();
+
+        let pub_key_hash_from_addr2 = bs58::decode(&addr2).into_vec().unwrap();
+        let pub_key_hash_from_addr2 =
+            &pub_key_hash_from_addr2[1..pub_key_hash_from_addr2.len() - 4].to_vec();
+
+        let pub_key_hash1_str = hex_encode(&pub_key_hash1);
+        let pub_key_hash2_str = hex_encode(&pub_key_hash2);
+
+        let pub_key_hash_from_addr1_str = hex_encode(&pub_key_hash_from_addr1);
+        let pub_key_hash_from_addr2_str = hex_encode(&pub_key_hash_from_addr2);
+
+        assert_eq!(pub_key_hash1_str, pub_key_hash_from_addr1_str);
+        assert_eq!(pub_key_hash2_str, pub_key_hash_from_addr2_str);
     }
 }
